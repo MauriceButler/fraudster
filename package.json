@@ -1,0 +1,20 @@
+{
+  "name": "fraudster",
+  "version": "0.0.1",
+  "description": "Simple mocking of require statements in Node",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MauriceButler/fraudster.git"
+  },
+  "keywords": [],
+  "author": "Maurice Butler <maurice.butler@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MauriceButler/fraudster/issues"
+  },
+  "homepage": "https://github.com/MauriceButler/fraudster"
+}
