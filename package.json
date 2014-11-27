@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/MauriceButler/fraudster/issues"
   },
-  "homepage": "https://github.com/MauriceButler/fraudster"
+  "homepage": "https://github.com/MauriceButler/fraudster",
+  "devDependencies": {
+    "tape": "^3.0.3"
+  }
 }
