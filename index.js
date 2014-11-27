@@ -1,5 +1,26 @@
-var Module = require('module'),
-    fakeLoader = require('./fakeLoader');
+var Module = require('module');
+
+function fakeLoader(request, parent, isMain) {
+    if (!this.originalLoader) {
+        throw new Error('Loader has not been replaced');
+    }
+
+    if (this.registeredMocks[request]) {
+        return this.registeredMocks[request];
+    }
+
+    if (!this.registeredAllowables[request]) {
+        if (this.options.warnOnUnregistered) {
+            console.warn('WARNING: loading non-allowed module: ' + request);
+        }
+
+        if (this.options.errorOnUnregistered) {
+            throw new Error('ERROR: loading non-allowed module: ' + request);
+        }
+    }
+
+    return this.originalLoader(request, parent, isMain);
+}
 
 function Fraudster(){
     this.registeredMocks = {};
@@ -54,7 +75,7 @@ Fraudster.prototype.registerMock = function (key, mock) {
         }
 
         if(this.options.errorOnReplace){
-            throw 'ERROR: Replacing existing mock for module: ' + key;
+            throw new Error('ERROR: Replacing existing mock for module: ' + key);
         }
     }
     this.registeredMocks[key] = mock;
@@ -66,35 +87,22 @@ Fraudster.prototype.deregisterMock = function (key) {
     }
 };
 
-Fraudster.prototype.registerAllowable = function (key, unhook) {
-    this.registeredAllowables[key] = {
-        unhook: !!unhook,
-        paths: []
-    };
+Fraudster.prototype.registerAllowable = function (key) {
+    this.registeredAllowables[key] = true;
 };
 
 
-Fraudster.prototype.registerAllowables = function (keys, unhook) {
+Fraudster.prototype.registerAllowables = function (keys) {
     var fraudster = this;
 
     keys.forEach(function (key) {
-        fraudster.registerAllowable(key, unhook);
+        fraudster.registerAllowable(key);
     });
 };
 
 
 Fraudster.prototype.deregisterAllowable = function (key) {
-    var fraudster = this;
-
-    if (this.registeredAllowables.hasOwnProperty(key)) {
-        var allow = this.registeredAllowables[key];
-        if (allow.unhook) {
-            allow.paths.forEach(function (p) {
-                delete fraudster.m._cache[p];
-            });
-        }
-        delete this.registeredAllowables[key];
-    }
+    delete this.registeredAllowables[key];
 };
 
 Fraudster.prototype.deregisterAllowables = function (keys) {
@@ -106,17 +114,6 @@ Fraudster.prototype.deregisterAllowables = function (keys) {
 };
 
 Fraudster.prototype.deregisterAll = function (){
-    var fraudster = this;
-
-    Object.keys(this.registeredAllowables).forEach(function (mod) {
-        var allow = fraudster.registeredAllowables[mod];
-        if (allow.unhook) {
-            allow.paths.forEach(function (p) {
-                delete fraudster.m._cache[p];
-            });
-        }
-    });
-
     this.registeredMocks = {};
     this.registeredSubstitutes = {};
     this.registeredAllowables = {};
