@@ -1,6 +1,6 @@
 {
   "name": "fraudster",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Simple mocking of require statements in Node",
   "main": "index.js",
   "scripts": {
