@@ -10,3 +10,7 @@ I like how it works, but have always wanted to change how it was written and tes
 
 Mainly make it instanceable so that mocks do not leak into other tests;
 
+
+# Status
+
+Work in progress...
