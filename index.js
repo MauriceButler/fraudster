@@ -19,17 +19,28 @@ function fakeLoader(request, parent, isMain) {
         }
     }
 
+    // Save the modules path that were required while fraudster was enabled
+    this.originalRequired.push(Module._resolveFilename(request, parent));
+
     return this.originalLoader(request, parent, isMain);
+}
+
+function cleanModulesCache(paths) {
+    paths.forEach(function (path) {
+        delete require.cache[path];
+    });
 }
 
 function Fraudster(options){
     this.registeredMocks = {};
     this.registeredAllowables = {};
+    this.originalRequired = [];
     this.originalLoader = null;
     this.originalCache = null;
     this.options = {
         warnOnReplace: false,
-        warnOnUnregistered: true
+        warnOnUnregistered: true,
+        cleanCacheOnDisable: false
     };
 
     for(var key in options){
@@ -53,6 +64,10 @@ Fraudster.prototype.disable = function () {
 
     Module._load = this.originalLoader;
     this.originalLoader = null;
+
+    if (this.options.cleanCacheOnDisable) {
+      cleanModulesCache(this.originalRequired);
+    }
 };
 
 Fraudster.prototype.registerMock = function (key, mock) {
@@ -99,6 +114,11 @@ Fraudster.prototype.deregisterAllowables = function (keys) {
 };
 
 Fraudster.prototype.deregisterAll = function (){
+    if (this.options.cleanCacheOnDisable) {
+        cleanModulesCache(this.originalRequired);
+    }
+
+    this.originalRequired = [];
     this.registeredMocks = {};
     this.registeredAllowables = {};
 };

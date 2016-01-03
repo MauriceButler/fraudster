@@ -50,10 +50,14 @@ When constructing Fraudster you can pass an optional `options` object to enable 
             warnOnUnregistered: true,
             errorOnUnregistered: true,
             warnOnReplace: true,
-            errorOnReplace: true
+            errorOnReplace: true,
+            cleanCacheOnDisable: true // default false
         });
 
 If warn is enabled a warning will be logged to the console, if error is enabled an Error will be thrown
+
+When `cleanCacheOnDisable` is true the modules that were required while fraudster was enabled
+will be removed from cache on disable/deregisterAll
 
 ## Registering mocks
 
@@ -102,5 +106,3 @@ or
 If you just want to destoy all the things you can use the `deregisterAll` method
 
     fraudster.deregisterAll();
-
-

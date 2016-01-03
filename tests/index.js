@@ -121,3 +121,46 @@ test('Fraudster double enable / disable is ok is ok', function (t) {
 
     t.pass('didnt go bang');
 });
+
+test('Fraudster mocked dependencies still cached after disable', function (t) {
+    t.plan(2);
+    var fraudster = new Fraudster({cleanCacheOnDisable: false}),
+        mockedFs = 'Mocked fs',
+        fakeModule1, fakeModule2;
+
+    fraudster.registerMock('fs', mockedFs);
+
+    fraudster.enable();
+
+    fakeModule1 = require('./fake-module');
+
+    t.equal(fakeModule1, mockedFs, 'mock was correct');
+
+    fraudster.disable();
+
+    fakeModule2 = require('./fake-module');
+
+    t.equal(fakeModule2, mockedFs, 'mock still in cache after disable');
+});
+
+test('Fraudster clean modules from cache on disable', function (t) {
+    t.plan(2);
+    var fraudster = new Fraudster({cleanCacheOnDisable: true}),
+        original = require('fs'),
+        mockedFs = 'Mocked fs',
+        fakeModule1, fakeModule2;
+
+    fraudster.registerMock('fs', mockedFs);
+
+    fraudster.enable();
+
+    fakeModule1 = require('./fake-module');
+
+    t.equal(fakeModule1, mockedFs, 'mock was correct');
+
+    fraudster.disable();
+
+    fakeModule2 = require('./fake-module');
+
+    t.equal(fakeModule2, original, 'module was removed from cache');
+});
